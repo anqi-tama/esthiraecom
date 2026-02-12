@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext } from 'react';
-import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Features from './pages/Features';
 import Pricing from './pages/Pricing';
@@ -158,7 +158,7 @@ export default function App() {
 
   return (
     <LanguageContext.Provider value={{ lang, setLang }}>
-      <HashRouter>
+      <BrowserRouter>
         <div className="min-h-screen flex flex-col pt-20 font-sans">
           <Navbar />
           <main className="flex-grow">
@@ -172,7 +172,7 @@ export default function App() {
           </main>
           <Footer />
         </div>
-      </HashRouter>
+      </BrowserRouter>
     </LanguageContext.Provider>
   );
 }
