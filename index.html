@@ -25,7 +25,7 @@
                         }
                     },
                     fontFamily: {
-                        serif: ['"RoxboroughCF"', '"Playfair Display"', 'serif'],
+                        serif: ['"Playfair Display"', 'serif'],
                         sans: ['Poppins', 'sans-serif']
                     },
                     borderRadius: {
@@ -60,7 +60,7 @@
             -webkit-font-smoothing: antialiased;
         }
         h1, h2, h3, h4 {
-            font-family: 'RoxboroughCF', 'Playfair Display', serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 700;
         }
         .animate-on-scroll {
@@ -93,15 +93,18 @@
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0"
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
