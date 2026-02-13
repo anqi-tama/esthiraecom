@@ -36,6 +36,18 @@ const Pricing: React.FC = () => {
     roiMultiplier: 0
   });
 
+  // Body scroll lock effect
+  useEffect(() => {
+    if (showModal || resultsVisible) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal, resultsVisible]);
+
   // Handle incoming data from Hero Teaser
   useEffect(() => {
     if (location.state && location.state.fromHero) {
@@ -614,9 +626,9 @@ Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45%
       </section>
 
       {showModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center px-6">
-          <div className="absolute inset-0 bg-esthirae-footer/60 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-          <div className="relative bg-white w-full max-w-xl rounded-4xl p-10 lg:p-14 shadow-2xl animate-fade-up border border-esthirae-accent/20">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 overflow-y-auto py-10 overscroll-contain">
+          <div className="fixed inset-0 bg-esthirae-footer/60 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
+          <div className="relative bg-white w-full max-w-xl rounded-4xl p-8 lg:p-14 shadow-2xl animate-fade-up border border-esthirae-accent/20 my-auto">
             {calculating ? (
               <div className="py-20 text-center space-y-8">
                 <div className="w-16 h-16 border-4 border-esthirae-border border-t-esthirae-accent rounded-full animate-spin mx-auto"></div>
@@ -679,14 +691,14 @@ Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45%
       )}
 
       {resultsVisible && (
-        <div className="fixed inset-0 z-[130] flex items-center justify-center px-6">
-          <div className="absolute inset-0 bg-esthirae-footer/90 backdrop-blur-md" onClick={handleCloseDashboard}></div>
-          <div className="relative bg-white w-full max-w-4xl rounded-4xl overflow-hidden shadow-2xl animate-fade-up border border-esthirae-accent/30">
-             <div className="grid grid-cols-1 lg:grid-cols-5 h-full">
-                <div className="lg:col-span-3 p-10 lg:p-14 bg-white">
-                    <h3 className="text-4xl font-serif font-bold italic mb-10">{i18n.modal.dashTitle}</h3>
-                    <div className="space-y-12">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="fixed inset-0 z-[130] flex items-start justify-center px-4 overflow-y-auto py-8 lg:py-16 overscroll-contain">
+          <div className="fixed inset-0 bg-esthirae-footer/95 backdrop-blur-lg" onClick={handleCloseDashboard}></div>
+          <div className="relative bg-white w-full max-w-4xl rounded-4xl overflow-hidden shadow-2xl animate-fade-up border border-esthirae-accent/30 my-auto">
+             <div className="grid grid-cols-1 lg:grid-cols-5 h-auto lg:min-h-[600px]">
+                <div className="lg:col-span-3 p-8 lg:p-14 bg-white flex flex-col justify-center">
+                    <h3 className="text-3xl lg:text-4xl font-serif font-bold italic mb-8 lg:mb-12">{i18n.modal.dashTitle}</h3>
+                    <div className="space-y-10 lg:space-y-12">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
                         <div className="animate-fade-up">
                           <div className="text-[9px] uppercase tracking-[0.2em] text-esthirae-muted font-bold mb-2">{i18n.roi.monthlyInc}</div>
                           <div className="text-3xl font-serif font-bold italic text-esthirae-accent">{formatIDR(roiResults.monthlyIncrease)}</div>
@@ -697,19 +709,19 @@ Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45%
                         </div>
                       </div>
                       
-                      <div className="bg-esthirae-bg p-8 rounded-3xl border border-esthirae-border animate-fade-up" style={{ animationDelay: '200ms' }}>
-                        <div className="flex items-center justify-between mb-4">
+                      <div className="bg-esthirae-bg p-6 lg:p-8 rounded-3xl border border-esthirae-border animate-fade-up" style={{ animationDelay: '200ms' }}>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                            <span className="text-[10px] font-bold uppercase tracking-widest text-esthirae-muted">{i18n.roi.multiplier}</span>
-                           <span className="text-2xl font-serif font-bold italic text-esthirae-accent">{roiResults.roiMultiplier}x Subscription Value</span>
+                           <span className="text-xl lg:text-2xl font-serif font-bold italic text-esthirae-accent">{roiResults.roiMultiplier}x Subscription Value</span>
                         </div>
-                        <p className="text-xs font-light text-esthirae-muted leading-relaxed">
+                        <p className="text-[11px] lg:text-xs font-light text-esthirae-muted leading-relaxed">
                           {lang === 'ID' 
                             ? 'Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45% pendapatan yang hilang dari no-show dan meningkatkan retensi hingga 20%.' 
                             : 'With Esthirae\'s integrated intelligence, your clinic can recover up to 45% of lost revenue from no-shows and increase retention-driven revenue by 20%.'}
                         </p>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row gap-4 animate-fade-up" style={{ animationDelay: '300ms' }}>
+                      <div className="flex flex-col sm:flex-row gap-4 animate-fade-up pt-4" style={{ animationDelay: '300ms' }}>
                         <Link to="/contact" className="flex-1 bg-esthirae-text text-white py-5 rounded-full text-center text-[9px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-accent transition-all shadow-xl">
                           {i18n.tiers.ctaConsult}
                         </Link>
@@ -719,14 +731,14 @@ Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45%
                       </div>
                     </div>
                 </div>
-                <div className="lg:col-span-2 bg-esthirae-footer p-10 lg:p-14 flex flex-col justify-center text-white relative">
+                <div className="lg:col-span-2 bg-esthirae-footer p-8 lg:p-14 flex flex-col justify-center text-white relative min-h-[300px] lg:min-h-full">
                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-esthirae-accent to-transparent"></div>
-                   <div className="relative z-10 space-y-8">
-                     <h4 className="text-2xl font-serif italic font-bold">Key Insight</h4>
-                     <p className="text-sm font-light text-esthirae-border/70 leading-relaxed">
+                   <div className="relative z-10 space-y-6 lg:space-y-8">
+                     <h4 className="text-xl lg:text-2xl font-serif italic font-bold">Key Insight</h4>
+                     <p className="text-xs lg:text-sm font-light text-esthirae-border/70 leading-relaxed">
                        {i18n.modal.keyInsight}
                      </p>
-                     <div className="pt-8 border-t border-white/10">
+                     <div className="pt-6 lg:pt-8 border-t border-white/10">
                         <div className="text-[8px] uppercase tracking-[0.3em] text-esthirae-accent font-bold mb-2">{i18n.modal.recommendedStart}</div>
                         <div className="text-lg font-serif italic">Premium Clinic Tier</div>
                      </div>
@@ -736,7 +748,7 @@ Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45%
              
              <button 
               onClick={handleCloseDashboard}
-              className="absolute top-6 right-6 text-esthirae-muted hover:text-esthirae-text transition-colors"
+              className="absolute top-6 right-6 text-esthirae-muted hover:text-esthirae-text transition-colors z-20"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
