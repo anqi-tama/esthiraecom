@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../App';
 
 interface Module {
@@ -249,6 +250,29 @@ const Features: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div className="mt-40 mb-20 animate-fade-up">
+          <div className="bg-esthirae-footer text-white rounded-4xl p-12 lg:p-24 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-esthirae-accent/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
+            <div className="relative z-10">
+              <h2 className="text-4xl lg:text-6xl font-serif font-bold italic mb-8">
+                {lang === 'ID' ? 'Siap Upgrade Standar Klinik Anda?' : 'Ready to Upgrade Your Clinic Standard?'}
+              </h2>
+              <p className="text-esthirae-border/60 text-lg font-light max-w-2xl mx-auto mb-14 leading-relaxed">
+                {lang === 'ID' 
+                  ? 'Bergabunglah dengan jaringan klinik premium yang telah beralih ke manajemen berbasis data dengan infrastruktur Esthirae.'
+                  : 'Join the network of premium clinics that have transitioned to data-driven management using Esthirae infrastructure.'}
+              </p>
+              <Link 
+                to="/contact" 
+                className="inline-block bg-esthirae-accent text-white px-14 py-6 rounded-full text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-white hover:text-esthirae-text transition-all duration-700 shadow-2xl"
+              >
+                {lang === 'ID' ? 'Schedule Private Demo' : 'Schedule Private Demo'}
+              </Link>
             </div>
           </div>
         </div>

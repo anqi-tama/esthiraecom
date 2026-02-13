@@ -1,10 +1,17 @@
-import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../App';
 
 const Home: React.FC = () => {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
   const scrollRefs = useRef<HTMLDivElement[]>([]);
+  
+  // ROI Teaser State
+  const [patients, setPatients] = useState<number | ''>('');
+  const [avgValue, setAvgValue] = useState<number | ''>('');
+  const [calculating, setCalculating] = useState(false);
+  const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -29,21 +36,47 @@ const Home: React.FC = () => {
     if (el && !scrollRefs.current.includes(el)) scrollRefs.current.push(el);
   };
 
+  const handleTeaserCalculate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!patients || !avgValue) return;
+    
+    setCalculating(true);
+    // Brief delay for UX then navigate to Pricing with state
+    setTimeout(() => {
+      navigate('/pricing', { 
+        state: { 
+          patients: Number(patients), 
+          avgValue: Number(avgValue),
+          fromHero: true 
+        } 
+      });
+    }, 400);
+  };
+
+  const triggerBlink = () => {
+    const el = document.getElementById('roi-teaser-form');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setIsBlinking(true);
+    setTimeout(() => {
+      setIsBlinking(false);
+    }, 1500); // Duration of the blink animation (0.5s * 3 iterations)
+  };
+
   const content = {
-    heroTitle: lang === 'ID' ? 'Upgrade Standar Manajemen Klinik Estetik Anda.' : 'Upgrade the Standard of Aesthetic Clinic Management.',
-    heroSub: lang === 'ID' ? 'Esthirae adalah infrastruktur manajemen berbasis AI yang menyatukan EMR, CRM, Inventory, POS, dan Business Intelligence dalam satu sistem premium.' : 'Esthirae is an AI-powered management infrastructure integrating EMR, CRM, Inventory, POS, and Business Intelligence into one refined system.',
-    heroCTA1: lang === 'ID' ? 'Request Private Demo' : 'Request Private Demo',
-    heroCTA2: lang === 'ID' ? 'Explore Fitur' : 'Explore Features',
-    dashboardTitle: lang === 'ID' ? 'Executive KPI Dashboard' : 'Executive KPI Dashboard',
-    revLabel: lang === 'ID' ? 'Net Monthly Revenue' : 'Net Monthly Revenue',
-    schedLabel: lang === 'ID' ? 'Jadwal Hari Ini' : 'Today\'s Schedule',
-    invLabel: lang === 'ID' ? 'Inventory Health' : 'Inventory Health',
+    heroTitle: lang === 'ID' ? 'Upgrade Performa Finansial Klinik Estetik Anda.' : 'Upgrade the Financial Performance of Your Aesthetic Clinic.',
+    heroSub: lang === 'ID' ? 'Infrastruktur manajemen berbasis AI yang menyatukan EMR, CRM, Inventory, POS, dan Business Intelligence — dibangun untuk pertumbuhan terstruktur.' : 'AI-powered clinic infrastructure integrating EMR, CRM, Inventory, POS, and Business Intelligence — built for structured growth.',
+    heroCTA1: lang === 'ID' ? 'Estimate Your Clinic ROI' : 'Estimate Your Clinic ROI',
+    heroCTA2: lang === 'ID' ? 'Request Private Demo' : 'Request Private Demo',
+    teaserLabel1: lang === 'ID' ? 'Pasien / Bulan' : 'Monthly Patients',
+    teaserLabel2: lang === 'ID' ? 'Avg Treatment (Rp)' : 'Avg Treatment (Rp)',
+    teaserBtn: lang === 'ID' ? 'Calculate Potential' : 'Calculate Potential',
+    
     problemTitle: lang === 'ID' ? 'Klinik Premium Butuh Infrastruktur Premium.' : 'Premium Clinics Deserve Premium Infrastructure.',
     problemSub: lang === 'ID' ? 'Di industri yang mengutamakan estetika dan presisi, sistem internal Anda jangan sampai berantakan. Esthirae bereskan semua hambatan yang bikin klinik susah scale up.' : 'In an industry defined by aesthetics and precision, your internal systems should never feel fragmented. Esthirae solves the invisible frictions that limit your clinic\'s true scalability.',
     ecoTitle: lang === 'ID' ? 'Eksosistem Cerdas' : 'The Intelligent Ecosystem',
     ecoSub: lang === 'ID' ? 'Enam pilar utama untuk operasional klinik yang sempurna, terintegrasi dalam satu sistem yang mulus.' : 'Six pillars of clinical excellence, integrated into one seamless intelligence layer.',
     closing: lang === 'ID' ? '“Esthirae bukan sekadar sistem baru. Ini adalah upgrade infrastruktur bisnis Anda.”' : '“Esthirae is not a system upgrade. It’s a business infrastructure upgrade.”',
-    closingCTA: lang === 'ID' ? 'Jadwalkan Konsultasi Sekarang' : 'Schedule Private Consultation'
+    closingCTA: lang === 'ID' ? 'Schedule Private Strategy Session' : 'Schedule Private Strategy Session'
   };
 
   const problems = [
@@ -65,55 +98,102 @@ const Home: React.FC = () => {
 
   return (
     <div className="overflow-hidden font-sans">
-      <section className="relative min-h-[90vh] flex items-center px-6 py-20 lg:py-32">
+      <section className="relative min-h-screen flex items-center px-6 pt-24 pb-20 lg:pt-32 lg:pb-32">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="animate-fade-up">
+          
+          {/* Hero Left: Messaging & ROI Teaser */}
+          <div className="animate-fade-up z-10">
             <h1 className="text-5xl lg:text-7xl font-serif font-bold italic leading-[1.05] mb-8 text-esthirae-text">
               {content.heroTitle}
             </h1>
-            <p className="text-lg lg:text-xl text-esthirae-muted mb-12 max-w-xl font-light leading-relaxed">
+            <p className="text-lg lg:text-xl text-esthirae-muted mb-10 max-w-xl font-light leading-relaxed">
               {content.heroSub}
             </p>
-            <div className="flex flex-col sm:flex-row gap-5">
-              <Link to="/contact" className="bg-esthirae-text text-white px-10 py-4 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-accent transition-all duration-500 shadow-2xl shadow-black/10 text-center">
+            
+            <div className="flex flex-col sm:flex-row gap-5 mb-16">
+              <button onClick={triggerBlink} className="bg-esthirae-text text-white px-10 py-4 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-accent transition-all duration-500 shadow-2xl shadow-black/10 text-center">
                 {content.heroCTA1}
-              </Link>
-              <Link to="/features" className="bg-white border border-esthirae-border text-esthirae-text px-10 py-4 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-bgSecondary transition-all duration-500 text-center">
+              </button>
+              <Link to="/contact" className="bg-white border border-esthirae-border text-esthirae-text px-10 py-4 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-bgSecondary transition-all duration-500 text-center">
                 {content.heroCTA2}
               </Link>
             </div>
+
+            {/* Mini ROI Teaser Box */}
+            <div id="roi-teaser-form" className={`relative max-w-2xl group transition-all duration-500`}>
+              <div className={`bg-white rounded-4xl md:rounded-full shadow-[0_15px_50px_rgba(0,0,0,0.05)] border border-esthirae-border p-2 md:p-3 flex flex-col md:flex-row items-center gap-3 transition-all duration-500 group-hover:shadow-[0_20px_60px_rgba(198,169,105,0.15)] ${isBlinking ? 'animate-blink' : ''}`}>
+                <div className="w-full md:w-auto flex-1 px-4 py-2 border-b md:border-b-0 md:border-r border-esthirae-border/50">
+                  <label className="block text-[8px] uppercase tracking-widest font-bold text-esthirae-muted mb-1">{content.teaserLabel1}</label>
+                  <input 
+                    type="number" 
+                    value={patients} 
+                    onChange={(e) => setPatients(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="e.g. 400"
+                    className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold p-0"
+                  />
+                </div>
+                <div className="w-full md:w-auto flex-1 px-4 py-2 border-b md:border-b-0 md:border-r border-esthirae-border/50">
+                  <label className="block text-[8px] uppercase tracking-widest font-bold text-esthirae-muted mb-1">{content.teaserLabel2}</label>
+                  <input 
+                    type="number" 
+                    value={avgValue} 
+                    onChange={(e) => setAvgValue(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="e.g. 750000"
+                    className="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold p-0"
+                  />
+                </div>
+                <button 
+                  onClick={handleTeaserCalculate}
+                  disabled={calculating}
+                  className="w-full md:w-auto bg-esthirae-accent text-white px-8 py-4 rounded-full text-[9px] font-bold tracking-[0.15em] uppercase hover:bg-esthirae-text transition-all duration-500 flex items-center justify-center"
+                >
+                  {calculating ? '...' : content.teaserBtn}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="relative animate-fade-up [animation-delay:200ms] perspective-1000">
+          {/* Hero Right: Premium Visual */}
+          <div className="relative animate-fade-up [animation-delay:200ms] perspective-1000 hidden lg:block">
             <div className="relative z-10 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-4xl p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] animate-float">
               <div className="bg-esthirae-bg border border-esthirae-border rounded-3xl overflow-hidden shadow-inner font-sans">
                  <div className="p-6 border-b border-esthirae-border flex justify-between items-center bg-white/50">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full bg-esthirae-accent"></div>
-                      <span className="font-serif text-lg tracking-wide font-bold italic">{content.dashboardTitle}</span>
+                      <span className="font-serif text-lg tracking-wide font-bold italic">Executive Dashboard</span>
                     </div>
                  </div>
-                 <div className="p-8 grid grid-cols-2 gap-6">
-                    <div className="col-span-2 bg-white p-6 rounded-2xl border border-esthirae-border shadow-sm">
-                       <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-2 font-bold">{content.revLabel}</div>
-                       <div className="text-3xl font-serif font-bold text-esthirae-text mb-4">Rp 1.485.500.000</div>
+                 <div className="p-8 space-y-6">
+                    <div className="bg-white p-6 rounded-2xl border border-esthirae-border shadow-sm">
+                       <div className="flex justify-between items-end mb-4">
+                          <div>
+                            <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-1 font-bold">Revenue Performance</div>
+                            <div className="text-2xl font-serif font-bold text-esthirae-text">Rp 1.485.500.000</div>
+                          </div>
+                          <div className="text-esthirae-accent text-xs font-bold">+22.4% vs prev month</div>
+                       </div>
                        <div className="h-16 w-full flex items-end space-x-2">
                           {[25, 40, 30, 65, 55, 85, 45, 70, 60, 95].map((h, i) => (
                             <div key={i} className="flex-1 bg-esthirae-accent/30 rounded-t-md" style={{ height: `${h}%` }}></div>
                           ))}
                        </div>
                     </div>
-                    <div className="bg-white p-5 rounded-2xl border border-esthirae-border shadow-sm">
-                       <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-2 font-bold">{content.schedLabel}</div>
-                       <div className="mt-4 text-xl font-serif font-bold italic">18 Appointments</div>
-                    </div>
-                    <div className="bg-white p-5 rounded-2xl border border-esthirae-border shadow-sm">
-                       <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-2 font-bold">{content.invLabel}</div>
-                       <div className="mt-4 text-xl font-serif font-bold italic">Audit Clear</div>
+                    
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="bg-white p-5 rounded-2xl border border-esthirae-border shadow-sm flex flex-col justify-center">
+                         <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-2 font-bold">No-Show Reduction</div>
+                         <div className="text-3xl font-serif font-bold italic text-esthirae-accent">-40%</div>
+                      </div>
+                      <div className="bg-white p-5 rounded-2xl border border-esthirae-border shadow-sm">
+                         <div className="text-[9px] uppercase tracking-[0.3em] text-esthirae-muted mb-2 font-bold">Appointments Today</div>
+                         <div className="text-2xl font-serif font-bold italic">18</div>
+                      </div>
                     </div>
                  </div>
               </div>
             </div>
+
+            {/* Extra Floating Elements */}
             <div className="absolute -bottom-10 -left-10 z-20 bg-white/90 backdrop-blur-lg border border-esthirae-border rounded-3xl p-6 shadow-2xl w-64 animate-float-delayed font-sans">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-esthirae-bgSecondary border border-esthirae-border flex items-center justify-center font-serif text-esthirae-accent font-bold text-xl italic">M</div>
@@ -127,11 +207,20 @@ const Home: React.FC = () => {
                 <div className="text-xs mt-1 font-light">HIFU Retouch — Week 24</div>
               </div>
             </div>
+            
+            <div className="absolute -top-12 -right-8 z-20 bg-esthirae-text text-white border border-white/10 rounded-3xl p-6 shadow-2xl w-56 animate-float">
+               <div className="text-[8px] uppercase tracking-widest font-bold mb-3 opacity-60">System Notification</div>
+               <p className="text-[11px] font-light leading-relaxed">
+                 AI Agent: "3 patients with high churn risk identified. Auto-campaign scheduled."
+               </p>
+            </div>
+
             <div className="absolute -top-24 -right-24 w-80 h-80 bg-esthirae-accent/10 blur-[120px] rounded-full"></div>
           </div>
         </div>
       </section>
 
+      {/* Problem Section */}
       <section className="py-32 bg-esthirae-bgSecondary px-6" ref={addRef}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           <div className="lg:col-span-5">
@@ -156,6 +245,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Ecosystem Section */}
       <section className="py-32 px-6" ref={addRef}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -179,6 +269,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Footer CTA Section */}
       <section className="py-40 bg-esthirae-footer text-white text-center px-6 relative overflow-hidden" ref={addRef}>
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-4xl lg:text-6xl font-serif font-bold italic mb-12 leading-tight">

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../App';
 import { supabase } from '../lib/supabase';
 
@@ -11,6 +11,7 @@ interface ROIResults {
 
 const Pricing: React.FC = () => {
   const { lang } = useLanguage();
+  const location = useLocation();
   const [showModal, setShowModal] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [resultsVisible, setResultsVisible] = useState(false);
@@ -35,11 +36,34 @@ const Pricing: React.FC = () => {
     roiMultiplier: 0
   });
 
+  // Handle incoming data from Hero Teaser
+  useEffect(() => {
+    if (location.state && location.state.fromHero) {
+      const { patients: p, avgValue: a } = location.state;
+      if (p) setPatients(p);
+      if (a) setAvgValue(a);
+      
+      // Smoothly scroll to the calculator section
+      setTimeout(() => {
+        const el = document.getElementById('roi-calculator');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+    }
+  }, [location.state]);
+
   const handleLeadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLeadData({
       ...leadData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleCloseDashboard = () => {
+    setResultsVisible(false);
+    setShowModal(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formatIDR = (val: number) => {
@@ -90,7 +114,7 @@ Owner:
 ${ownerName}
 
 Email:
-${email}
+${email || 'N/A'}
 
 WhatsApp:
 ${whatsapp}
@@ -112,11 +136,6 @@ ${roiMultiplier}x Subscription Value
 Halo ${ownerName},
 Owner dari ${clinicName}
 
-Alamat Email:
-${email}
-Nomor WhatsApp:
-${whatsapp}
-
 Berikut estimasi potensi pertumbuhan klinik Anda:
 
 Projected Revenue Impact:
@@ -131,11 +150,7 @@ Rp ${annualGrowth}
 ROI Multiplier:
 ${roiMultiplier}x Subscription Value
 
-Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45% pendapatan yang hilang dari no-show dan meningkatkan retensi hingga 20%.
-
-Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersama tim Esthirae.
-
-— Esthirae AI-Based Aesthetic Clinic Management System.
+Dengan kecerdasan terintegrasi Esthirae, klinik Anda dapat memulihkan hingga 45% pendapatan yang hilang dari no-show dan meningkatkan retensi hingga 20%.\n\n— Esthirae AI-Based Aesthetic Clinic Management System.
 `
           }),
         }
@@ -203,6 +218,7 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
         roiMultiplier
       });
       setCalculating(false);
+      setShowModal(false);
       setResultsVisible(true);
     }, 800);
   };
@@ -252,8 +268,8 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
       unlockSub: lang === 'ID' ? 'Masukkan detail Anda untuk melihat estimasi ROI detail dan proyeksi pertumbuhan klinik Anda.' : 'Enter your details to view detailed ROI estimation and growth projection for your clinic.',
       clinicName: lang === 'ID' ? 'Nama Klinik' : 'Clinic Name',
       ownerName: lang === 'ID' ? 'Nama Pemilik' : 'Owner Name',
-      email: lang === 'ID' ? 'Alamat Email' : 'Email Address',
-      whatsapp: lang === 'ID' ? 'Nomor WhatsApp (Opsional)' : 'WhatsApp Number (Optional)',
+      email: lang === 'ID' ? 'Alamat Email (Optional)' : 'Email Address (Optional)',
+      whatsapp: lang === 'ID' ? 'Nomor WhatsApp' : 'WhatsApp Number',
       btnView: lang === 'ID' ? 'Lihat Proyeksi Saya' : 'View My Projection',
       confidential: lang === 'ID' ? 'Data Anda bersifat rahasia dan hanya digunakan untuk tujuan konsultasi.' : 'Your data is confidential and will only be used for consultation purposes.',
       dashTitle: lang === 'ID' ? 'Dashboard Proyeksi Anda.' : 'Your Growth Projection.',
@@ -287,11 +303,6 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
         'Inventory Management',
         'Executive Dashboard (Basic BI)'
       ],
-      excludes: [
-        'WhatsApp Automation',
-        'Advanced CRM & Loyalty Engine',
-        'Accounting & Financial Reporting Advanced'
-      ],
       theme: 'white'
     },
     {
@@ -301,7 +312,7 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
       regular: '1.500.000',
       launch: '1.250.000',
       positioning: lang === 'ID' 
-        ? 'Dibangun untuk klinik premium yang memprioritaskan retensi, pelacakan performa, dan pertumbuhan terukur.' 
+        ? 'Dibangun untuk klinik premium yang memprioritaskan retensi, pelacakan pembuat dan pertumbuhan terukur.' 
         : 'Built for premium clinics that prioritize retention, performance tracking, and scalable growth.',
       includes: [
         lang === 'ID' ? 'Semua fitur Growth Clinic' : 'All Growth Clinic features',
@@ -431,19 +442,6 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
                     </li>
                   ))}
                 </ul>
-
-                {tier.excludes && (
-                  <ul className="space-y-4 opacity-40">
-                    {tier.excludes.map((item, i) => (
-                      <li key={i} className="flex items-start space-x-3">
-                        <span className="w-4 text-center text-xs font-light text-esthirae-muted">—</span>
-                        <span className="text-xs font-light leading-snug text-esthirae-muted">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
 
               <Link 
@@ -463,7 +461,7 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
         </div>
       </section>
 
-      <section className="bg-esthirae-bgSecondary py-32 px-6">
+      <section id="roi-calculator" className="bg-esthirae-bgSecondary py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-serif font-bold italic mb-6">{i18n.roi.title}</h2>
@@ -612,51 +610,11 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
               </div>
             </div>
           </div>
-
-          <div className="mt-32 p-12 lg:p-20 bg-esthirae-footer text-white rounded-4xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-12 opacity-10">
-               <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
-                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-               </svg>
-             </div>
-             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-               <div>
-                  <h3 className="text-3xl lg:text-4xl font-serif font-bold italic mb-6">{i18n.projection.scenarioTitle}</h3>
-                  <ul className="space-y-4 text-esthirae-border/70 font-light text-sm mb-10">
-                    <li className="flex justify-between border-b border-white/10 pb-2"><span>{i18n.roi.labelVisits}</span> <span>400 Visits</span></li>
-                    <li className="flex justify-between border-b border-white/10 pb-2"><span>{lang === 'ID' ? 'Rata-rata Nilai Treatment' : 'Avg Treatment Value'}</span> <span>Rp 750.000</span></li>
-                    <li className="flex justify-between border-b border-white/10 pb-2"><span>{lang === 'ID' ? 'Pendapatan Dasar Bulanan' : 'Monthly Base Revenue'}</span> <span>Rp 300.000.000</span></li>
-                  </ul>
-                  <div className="bg-esthirae-accent/20 border border-esthirae-accent/30 p-8 rounded-3xl">
-                     <div className="text-[10px] font-bold uppercase tracking-widest mb-2 text-esthirae-accent">{i18n.projection.uplift}</div>
-                     <div className="text-3xl font-serif font-bold italic text-white">+ Rp 45.000.000 / {lang === 'ID' ? 'bulan' : 'month'}</div>
-                  </div>
-               </div>
-               <div className="text-center lg:text-right">
-                  <div className="inline-block bg-white text-esthirae-text px-10 py-4 rounded-full font-serif font-bold italic text-3xl mb-6">ROI Multiple &gt; 30x</div>
-                  <p className="text-esthirae-border/50 font-light leading-relaxed max-w-sm ml-auto">
-                    {i18n.projection.roiNote}
-                  </p>
-               </div>
-             </div>
-          </div>
         </div>
       </section>
 
-      <section className="py-40 bg-esthirae-bg text-center px-6 border-t border-esthirae-border">
-         <h2 className="text-4xl lg:text-6xl font-serif font-bold italic mb-12 max-w-4xl mx-auto leading-tight">
-          {lang === 'ID' ? 'Siap Upgrade Standar Klinik Anda?' : 'Ready to Upgrade Your Clinic Standard?'}
-        </h2>
-        <Link 
-          to="/contact" 
-          className="inline-block bg-esthirae-text text-white px-16 py-6 rounded-full text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-esthirae-accent transition-all duration-700 shadow-2xl"
-        >
-          {i18n.tiers.ctaConsult}
-        </Link>
-      </section>
-
       {showModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-esthirae-footer/60 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
           <div className="relative bg-white w-full max-w-xl rounded-4xl p-10 lg:p-14 shadow-2xl animate-fade-up border border-esthirae-accent/20">
             {calculating ? (
@@ -672,20 +630,28 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
                 <form onSubmit={handleLeadSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">{i18n.modal.clinicName}</label>
+                      <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">
+                        {i18n.modal.clinicName}<span className="text-red-500 ml-0.5">*</span>
+                      </label>
                       <input required name="clinic_name" value={leadData.clinic_name} onChange={handleLeadChange} type="text" className="w-full bg-esthirae-bg border border-esthirae-border rounded-xl px-5 py-3 text-xs" placeholder="e.g. Luminique Aesthetic" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">{i18n.modal.ownerName}</label>
+                      <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">
+                        {i18n.modal.ownerName}<span className="text-red-500 ml-0.5">*</span>
+                      </label>
                       <input required name="owner_name" value={leadData.owner_name} onChange={handleLeadChange} type="text" className="w-full bg-esthirae-bg border border-esthirae-border rounded-xl px-5 py-3 text-xs" placeholder="Dr. Adeline Smith" />
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">{i18n.modal.email}</label>
-                    <input required name="email" value={leadData.email} onChange={handleLeadChange} type="email" className="w-full bg-esthirae-bg border border-esthirae-border rounded-xl px-5 py-3 text-xs" placeholder="owner@clinic.com" />
+                    <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">
+                      {i18n.modal.email}
+                    </label>
+                    <input name="email" value={leadData.email} onChange={handleLeadChange} type="email" className="w-full bg-esthirae-bg border border-esthirae-border rounded-xl px-5 py-3 text-xs" placeholder="owner@clinic.com" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">{i18n.modal.whatsapp}</label>
+                    <label className="text-[8px] uppercase tracking-widest font-bold text-esthirae-muted">
+                      {i18n.modal.whatsapp}<span className="text-red-500 ml-0.5">*</span>
+                    </label>
                     <input required name="whatsapp" value={leadData.whatsapp} onChange={handleLeadChange} type="tel" className="w-full bg-esthirae-bg border border-esthirae-border rounded-xl px-5 py-3 text-xs" placeholder="+62 ..." />
                   </div>
                   
@@ -713,8 +679,8 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
       )}
 
       {resultsVisible && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-6">
-          <div className="absolute inset-0 bg-esthirae-footer/90 backdrop-blur-md" onClick={() => setResultsVisible(false)}></div>
+        <div className="fixed inset-0 z-[130] flex items-center justify-center px-6">
+          <div className="absolute inset-0 bg-esthirae-footer/90 backdrop-blur-md" onClick={handleCloseDashboard}></div>
           <div className="relative bg-white w-full max-w-4xl rounded-4xl overflow-hidden shadow-2xl animate-fade-up border border-esthirae-accent/30">
              <div className="grid grid-cols-1 lg:grid-cols-5 h-full">
                 <div className="lg:col-span-3 p-10 lg:p-14 bg-white">
@@ -747,7 +713,7 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
                         <Link to="/contact" className="flex-1 bg-esthirae-text text-white py-5 rounded-full text-center text-[9px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-accent transition-all shadow-xl">
                           {i18n.tiers.ctaConsult}
                         </Link>
-                        <button onClick={() => setResultsVisible(false)} className="flex-1 border border-esthirae-border py-5 rounded-full text-center text-[9px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-bg transition-all">
+                        <button onClick={handleCloseDashboard} className="flex-1 border border-esthirae-border py-5 rounded-full text-center text-[9px] font-bold tracking-[0.2em] uppercase hover:bg-esthirae-bg transition-all">
                           {lang === 'ID' ? 'Tutup Dashboard' : 'Close Dashboard'}
                         </button>
                       </div>
@@ -769,8 +735,8 @@ Balas WhatsApp ini untuk diskusi strategi transformasi digital klinik Anda bersa
              </div>
              
              <button 
-              onClick={() => setResultsVisible(false)}
-              className="absolute top-6 right-6 text-esthirae-muted hover:text-esthirae-text transition-colors lg:hidden"
+              onClick={handleCloseDashboard}
+              className="absolute top-6 right-6 text-esthirae-muted hover:text-esthirae-text transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
